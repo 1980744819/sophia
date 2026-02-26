@@ -5,7 +5,7 @@ FROM 192.168.1.7:30002/base/node:14-alpine as build
 WORKDIR /app
 
 # 设置环境变量
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 # 设置代理
 ENV http_proxy=http://192.168.1.7:7890 \
     https_proxy=http://192.168.1.7:7890 \
@@ -22,7 +22,7 @@ RUN npm config set registry https://registry.npmmirror.com
 COPY source/vue/xzs-admin/package*.json ./
 
 # 安装依赖
-RUN npm install --include=dev
+RUN npm install
 
 # 复制前端源代码
 COPY source/vue/xzs-admin/ .
