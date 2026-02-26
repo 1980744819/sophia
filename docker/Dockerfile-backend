@@ -16,7 +16,7 @@ RUN if [ -f /etc/apt/sources.list ]; then sed -i 's/deb.debian.org/mirrors.aliyu
 RUN mkdir -p /root/.m2 && echo '<settings><mirrors><mirror><id>aliyun</id><name>Aliyun Maven</name><url>https://maven.aliyun.com/repository/public</url><mirrorOf>central</mirrorOf></mirror></mirrors></settings>' > /root/.m2/settings.xml
 
 # 复制后端源代码
-COPY source/java/ .
+COPY source/xzs/ .
 
 # 构建项目
 RUN mvn clean package -DskipTests
