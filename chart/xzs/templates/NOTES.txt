@@ -1,0 +1,11 @@
+1. Get the frontend application URL by running these commands:
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "xzs.fullname" . }}-frontend)
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+
+2. Frontend access URLs:
+   - Student portal: http://$NODE_IP:$NODE_PORT/student
+   - Admin portal: http://$NODE_IP:$NODE_PORT/admin
+
+3. Backend service is not exposed externally. It can be accessed within the cluster at:
+   http://{{ include "xzs.fullname" . }}-backend:{{ .Values.backend.service.port }}

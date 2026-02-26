@@ -1,27 +1,27 @@
 version: '3.9'
 services:
-    mysql:
-        image: registry.cn-hangzhou.aliyuncs.com/mindskip/mysql:8.0.33
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile-backend
+        container_name: xzs-backend
         restart: always
-        ports:
-            - 127.0.0.1:3306:3306
-        privileged: true
-        container_name: xzs-mysql
-        environment:
-            MYSQL_ROOT_PASSWORD: "123456"
-            TZ: "Asia/Shanghai"
-        volumes:
-            - "./sql:/docker-entrypoint-initdb.d/"
-    java:
-        image: registry.cn-hangzhou.aliyuncs.com/mindskip/java:1.8.0
-        container_name: xzs-java
-        privileged: true
-        network_mode: host
-        restart: always
-        command:
-            /bin/bash -c "java -Duser.timezone=Asia/Shanghai -jar -Dspring.profiles.active=prod /usr/local/xzs/release/xzs-3.9.0.jar"
         ports: 
             - 8000:8000
-        volumes:
-            - "./release:/usr/local/xzs/release/"        
-            - "./log:/usr/log/xzs/"
+        environment:
+            SPRING_DATASOURCE_URL: "jdbc:postgresql://192.168.1.7:30432/postgres"
+            SPRING_DATASOURCE_USERNAME: "dev"
+            SPRING_DATASOURCE_PASSWORD: "passw0rd_dev"
+            SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+            SPRING_JPA_DATABASE_PLATFORM: "org.hibernate.dialect.PostgreSQLDialect"
+
+    frontend:
+        build:
+            context: .
+            dockerfile: Dockerfile-frontend
+        container_name: xzs-frontend
+        restart: always
+        ports:
+            - 80:80
+        depends_on:
+            - backend

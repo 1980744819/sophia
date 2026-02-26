@@ -1,0 +1,46 @@
+# 基于 Node.js 14 构建前端项目
+FROM 192.168.1.7:30002/base/node:14-alpine as build
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置环境变量
+ENV NODE_ENV=production
+# 设置代理
+ENV http_proxy=http://192.168.1.7:7890 \
+    https_proxy=http://192.168.1.7:7890 \
+    no_proxy=localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8
+
+# 设置国内镜像代理
+# 1. 设置 Alpine 包管理镜像源
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+# 2. 设置 npm 镜像源
+RUN npm config set registry https://registry.npmmirror.com
+
+# 复制 package.json 和 package-lock.json
+COPY source/vue/xzs-admin/package*.json ./
+
+# 安装依赖
+RUN npm install
+
+# 复制前端源代码
+COPY source/vue/xzs-admin/ .
+
+# 构建生产环境代码
+RUN npm run build:prod
+
+# 使用 Nginx 作为前端服务器
+FROM 192.168.1.7:30002/base/nginx:alpine
+
+# 复制构建好的前端代码到 Nginx 静态目录
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# 复制 Nginx 配置文件
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# 暴露 80 端口
+EXPOSE 80
+
+# 启动 Nginx
+CMD ["nginx", "-g", "daemon off;"]
